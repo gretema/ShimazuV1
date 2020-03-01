@@ -37,8 +37,23 @@ function copyHTML() {
   return gulp.src('./src/**/*.html')
     .pipe(gulp.dest('./public/'));
 }
-// 在 cmd 輸入 gulp copyHTML 指令，就會產生一個 public 目錄
 
+/**
+ * ejs Block
+ */
+function ejs() {
+  return gulp.src(['./src/templates/**.ejs', '!./src/templates/**/_*.ejs'])
+    .pipe($.ejs())
+    .pipe($.rename({ extname: '.html' }))
+    .pipe($.if(options.env === 'prod', $.htmlmin({ collapseWhitespace: true })))
+    .pipe(gulp.dest('./public/'))
+    .pipe(browserSync.stream());
+}
+/**
+
+/**
+ * sass Block
+ */
 // 複製 gulp-sass npm 網站上的 Basic Usage
 // 使用 Source Map
 // 但是要改進入點跟輸出點
@@ -55,6 +70,7 @@ function copyHTML() {
 //     .pipe(gulp.dest('./public/css'))
 //     .pipe(browserSync.stream());
 // });
+
 function scss() {
   const plugins = [
     autoprefixer(),
@@ -76,6 +92,7 @@ function scss() {
 // gulp.task('sass:watch', () => {
 //   gulp.watch('./sass/**/*.scss', ['sass']);
 // });
+/** */
 
 // Babel
 // gulp.task('babel', () => {
@@ -104,6 +121,7 @@ function babel() {
 function vendorsJs() {
   return gulp.src([
     './node_modules/jquery/dist/**/jquery.min.js',
+    './node_modules/popper.js/dist/**/popper.min.js',
     './node_modules/bootstrap/dist/js/**/bootstrap.bundle.min.js',
   ])
     .pipe($.concat('vendors.js'))
@@ -166,7 +184,7 @@ function clean() {
 // 同步執行 Tasks
 // gulp.task('default', gulp.series('copyHTML', 'scss', 'babel', 'image', 'watch'));
 exports.default = gulp.series(
-  copyHTML,
+  ejs,
   scss,
   babel,
   vendorsJs,
@@ -176,7 +194,7 @@ exports.default = gulp.series(
 
 // build 任務佇列: 指令為 gulp bulid --env prod
 // gulp.task('bulid', gulp.series('clean', 'copyHTML', 'scss', 'babel', 'image'));
-exports.build = gulp.series(clean, copyHTML, scss, babel, vendorsJs, images);
+exports.build = gulp.series(clean, ejs, scss, babel, vendorsJs, images);
 
 // 部署至 gh-pages
 // gulp.task('deploy', () => {
