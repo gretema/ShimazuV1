@@ -1,3 +1,5 @@
+// 註解起來的程式碼是 Gulp 3.9.1 寫法
+
 // 引入 gulp
 // const gulp = require('gulp');
 import gulp from 'gulp';
@@ -59,7 +61,12 @@ function scss() {
   ];
   return gulp.src('./src/stylesheets/**/*.scss')
     .pipe($.sourcemaps.init())
-    .pipe($.sass().on('error', $.sass.logError))
+    .pipe(
+      $.sass({
+        outputStyle: 'expanded',
+        includePaths: ['./node_modules/bootstrap/scss'],
+      }).on('error', $.sass.logError),
+    )
     .pipe($.postcss(plugins))
     .pipe($.if(options.env === 'prod', $.cssnano()))
     .pipe($.sourcemaps.write('.')) // 在括號中加入'.'
@@ -142,7 +149,7 @@ function browser() {
 // }));
 function watch() {
   gulp.watch('./src/**/*.html', copyHTML);
-  gulp.watch('./src/sass/**/*.scss', scss);
+  gulp.watch('./src/stylesheets/**/*.scss', scss);
   gulp.watch('./src/js/**/*.js', babel);
 }
 
